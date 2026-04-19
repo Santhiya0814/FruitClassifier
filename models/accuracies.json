@@ -1,0 +1,10 @@
+{
+  "accuracies": {
+    "KNN": 100.0,
+    "Decision Tree": 100.0,
+    "Naive Bayes": 100.0,
+    "Logistic Regression": 92.31,
+    "Random Forest": 100.0
+  },
+  "best_model": "KNN"
+}

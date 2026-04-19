@@ -1,0 +1,21 @@
+name: CD — Deploy to Render
+
+on:
+  workflow_run:
+    workflows: ["CI — Fruit Classifier"]
+    branches: ["main", "master"]
+    types: [completed]
+
+jobs:
+  deploy:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: 🚀 Trigger Render deploy hook
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" | \
+          grep -q "^2" && echo "Deploy triggered successfully." || \
+          (echo "Deploy hook failed." && exit 1)

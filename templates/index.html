@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fruit Classifier ML | Professional AI Tool</title>
+  <meta name="description" content="AI-powered fruit classification using multiple machine learning algorithms — KNN, Decision Tree, Naive Bayes, and Logistic Regression." />
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <!-- Lavender Theme -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+
+<!-- ═══════════════════════ NAVBAR ═══════════════════════ -->
+<nav class="navbar navbar-expand-lg fixed-top glass-nav">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#">
+      <span class="emoji-logo">🍓</span> FruitAI
+    </a>
+    <div class="ms-auto d-flex align-items-center gap-3">
+      <span class="badge bg-success-soft">
+        <i class="bi bi-circle-fill text-success me-1" style="font-size:8px"></i>Live
+      </span>
+      <a href="/dashboard" class="btn btn-outline-light btn-sm">
+        <i class="bi bi-grid-fill me-1"></i>Dashboard
+      </a>
+      <a href="https://github.com" class="btn btn-outline-light btn-sm" target="_blank">
+        <i class="bi bi-github me-1"></i>GitHub
+      </a>
+    </div>
+
+  </div>
+</nav>
+
+<!-- ═══════════════════════ HERO ═══════════════════════ -->
+<section class="hero-section">
+  <div class="container text-center">
+    <div class="hero-badge mb-3">✨ Resume-Level ML Project</div>
+    <h1 class="hero-title">
+      Fruit Classification<br/>
+      <span class="gradient-text">with Machine Learning</span>
+    </h1>
+    <p class="hero-subtitle">
+      Classify fruits in real-time using 4 different ML algorithms.<br/>
+      Compare accuracy, confidence scores, and model performance.
+    </p>
+    <div class="hero-stats d-flex justify-content-center gap-4 mt-4 flex-wrap">
+      <div class="stat-chip"><i class="bi bi-cpu me-1"></i>4 Algorithms</div>
+      <div class="stat-chip"><i class="bi bi-database me-1"></i>5 Fruit Classes</div>
+      <div class="stat-chip"><i class="bi bi-lightning me-1"></i>Real-Time API</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ MAIN CONTENT ═══════════════════════ -->
+<main class="main-content">
+  <div class="container">
+    <div class="row g-4 align-items-start">
+
+      <!-- ── LEFT: Prediction Form ── -->
+      <div class="col-lg-5">
+        <div class="glass-card h-100">
+          <div class="card-header-custom">
+            <h2 class="card-title"><i class="bi bi-sliders me-2 text-primary"></i>Input Features</h2>
+            <p class="card-subtitle">Adjust the fruit properties below to get a prediction</p>
+          </div>
+
+          <form id="predict-form" novalidate>
+
+            <!-- Algorithm Selector -->
+            <div class="mb-4">
+              <label class="form-label" for="algorithm">
+                <i class="bi bi-gear-fill me-1" style="color:var(--primary)"></i>ML Algorithm
+              </label>
+              <select class="form-select custom-select" id="algorithm" name="algorithm">
+                {% for m in models %}
+                <option value="{{ m }}" {% if m == best_model %}selected{% endif %}>
+                  {{ m }} {% if m == best_model %}— Best Model{% endif %}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Weight -->
+            <div class="mb-4">
+              <label class="form-label" for="weight">
+                <i class="bi bi-speedometer2 me-1" style="color:var(--warning)"></i>Weight
+                <span class="slider-value" id="weight-val">160</span>
+                <span class="unit">g</span>
+              </label>
+              <input type="range" class="form-range custom-range" id="weight"
+                     name="weight" min="1" max="1200" step="1" value="160" />
+              <div class="range-labels"><span>1 g</span><span>1200 g</span></div>
+              <input type="number" class="form-control mt-2 numeric-input" id="weight-num"
+                     min="1" max="1200" step="0.1" value="160" placeholder="or type value..." />
+            </div>
+
+            <!-- Size -->
+            <div class="mb-4">
+              <label class="form-label" for="size">
+                <i class="bi bi-arrows-angle-expand me-1" style="color:#0ea5e9"></i>Size
+                <span class="slider-value" id="size-val">7.5</span>
+                <span class="unit">cm</span>
+              </label>
+              <input type="range" class="form-range custom-range" id="size"
+                     name="size" min="0.5" max="20" step="0.1" value="7.5" />
+              <div class="range-labels"><span>0.5 cm</span><span>20 cm</span></div>
+              <input type="number" class="form-control mt-2 numeric-input" id="size-num"
+                     min="0.5" max="20" step="0.1" value="7.5" placeholder="or type value..." />
+            </div>
+
+            <!-- Sweetness -->
+            <div class="mb-4">
+              <label class="form-label" for="sweetness">
+                <i class="bi bi-star-fill me-1" style="color:var(--accent)"></i>Sweetness
+                <span class="slider-value" id="sweetness-val">7</span>
+                <span class="unit">/ 10</span>
+              </label>
+              <input type="range" class="form-range custom-range" id="sweetness"
+                     name="sweetness" min="0" max="10" step="0.5" value="7" />
+              <div class="range-labels"><span>0</span><span>10</span></div>
+              <input type="number" class="form-control mt-2 numeric-input" id="sweetness-num"
+                     min="0" max="10" step="0.1" value="7" placeholder="or type value..." />
+            </div>
+
+            <button type="submit" class="btn btn-predict mt-1" id="submit-btn">
+              <span class="btn-content">
+                <i class="bi bi-cpu me-2"></i>Classify Fruit
+              </span>
+              <span class="btn-loader d-none">
+                <span class="spinner-border spinner-border-sm me-2"></span>Analyzing...
+              </span>
+            </button>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- ── RIGHT: Results + Chart ── -->
+      <div class="col-lg-7">
+
+        <!-- Prediction Result Card -->
+        <div class="glass-card mb-4" id="result-card" style="display:none">
+          <div class="card-header-custom">
+            <h2 class="card-title">
+              <i class="bi bi-award-fill me-2" style="color:var(--primary)"></i>Prediction Result
+            </h2>
+          </div>
+          <div id="result-content"></div>
+        </div>
+
+        <!-- Error Alert -->
+        <div id="error-alert" class="alert-custom d-none mb-4">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <span id="error-text"></span>
+        </div>
+
+        <!-- Accuracy Chart Card -->
+        <div class="glass-card">
+          <div class="card-header-custom">
+            <h2 class="card-title">
+              <i class="bi bi-bar-chart-fill me-2" style="color:var(--primary)"></i>Model Accuracy Comparison
+            </h2>
+            <p class="card-subtitle">Test-set accuracy for all 4 algorithms</p>
+          </div>
+
+          <div class="chart-wrapper">
+            <canvas id="accuracy-chart"></canvas>
+          </div>
+
+          <!-- Leaderboard -->
+          <div class="leaderboard mt-4">
+            {% set acc = accuracies %}
+            {% for name, score in acc.items()|sort(attribute='1', reverse=True) %}
+            <div class="leaderboard-row {% if name == best_model %}best{% endif %}">
+              <span class="rank">{{ loop.index }}</span>
+              <span class="model-name">
+                {{ name }}
+                {% if name == best_model %}
+                  <span class="badge-best">Best</span>
+                {% endif %}
+              </span>
+              <div class="acc-bar-wrap">
+                <div class="acc-bar" style="width: {{ score }}%"></div>
+              </div>
+              <span class="acc-score">{{ score }}%</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+      </div><!-- /col -->
+    </div><!-- /row -->
+  </div><!-- /container -->
+</main>
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<footer class="site-footer">
+  <div class="container text-center">
+    <p class="mb-1">Built with <i class="bi bi-heart-fill" style="color:var(--accent)"></i> using Flask · Scikit-Learn · Bootstrap 5</p>
+    <p style="color:var(--text-muted); font-size:0.8rem;">Fruit Classification ML Project &nbsp;·&nbsp; Portfolio</p>
+  </div>
+</footer>
+
+<!-- Bootstrap JS + Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+<script>
+// ─── Slider ↔ Number sync ────────────────────────────────────────────────────
+function syncSliderNumber(sliderId, numberId, displayId) {
+  const slider = document.getElementById(sliderId);
+  const numEl  = document.getElementById(numberId);
+  const dispEl = document.getElementById(displayId);
+  slider.addEventListener("input", () => {
+    numEl.value = slider.value;
+    dispEl.textContent = slider.value;
+  });
+  numEl.addEventListener("input", () => {
+    if (numEl.value !== "") {
+      slider.value = numEl.value;
+      dispEl.textContent = numEl.value;
+    }
+  });
+}
+syncSliderNumber("weight",    "weight-num",    "weight-val");
+syncSliderNumber("size",      "size-num",      "size-val");
+syncSliderNumber("sweetness", "sweetness-num", "sweetness-val");
+
+// ─── Fruit Emojis ────────────────────────────────────────────────────────────
+const EMOJIS = { apple:"🍎", banana:"🍌", orange:"🍊", grapes:"🍇", pineapple:"🍍" };
+function getEmoji(name) { return EMOJIS[name.toLowerCase()] || "🍓"; }
+
+// ─── Form Submit ─────────────────────────────────────────────────────────────
+document.getElementById("predict-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const btn        = document.getElementById("submit-btn");
+  const btnContent = btn.querySelector(".btn-content");
+  const btnLoader  = btn.querySelector(".btn-loader");
+  const resultCard = document.getElementById("result-card");
+  const errorAlert = document.getElementById("error-alert");
+
+  btn.disabled = true;
+  btnContent.classList.add("d-none");
+  btnLoader.classList.remove("d-none");
+  errorAlert.classList.add("d-none");
+  resultCard.style.display = "none";
+
+  const payload = {
+    weight:    parseFloat(document.getElementById("weight-num").value),
+    size:      parseFloat(document.getElementById("size-num").value),
+    sweetness: parseFloat(document.getElementById("sweetness-num").value),
+    algorithm: document.getElementById("algorithm").value,
+  };
+
+  try {
+    const res  = await fetch("/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "An unexpected error occurred.");
+
+    const emoji = getEmoji(data.prediction);
+    document.getElementById("result-content").innerHTML = `
+      <div class="result-fruit">
+        <div class="fruit-emoji">${emoji}</div>
+        <div>
+          <div class="fruit-name">${data.prediction}</div>
+        </div>
+      </div>
+      <div class="result-meta mt-3">
+        <div class="meta-pill"><i class="bi bi-gear-fill me-1"></i>${data.algorithm}</div>
+        <div class="meta-pill confidence-pill">
+          <i class="bi bi-graph-up-arrow me-1"></i>Confidence: ${data.confidence}
+        </div>
+      </div>`;
+
+    resultCard.style.display = "block";
+    resultCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+  } catch (err) {
+    document.getElementById("error-text").textContent = err.message;
+    errorAlert.classList.remove("d-none");
+  } finally {
+    btn.disabled = false;
+    btnContent.classList.remove("d-none");
+    btnLoader.classList.add("d-none");
+  }
+});
+
+// ─── Chart.js Bar Chart ───────────────────────────────────────────────────────
+const RAW_ACCURACIES = {{ accuracies | tojson }};
+const BEST           = "{{ best_model }}";
+
+const labels = Object.keys(RAW_ACCURACIES);
+const values = Object.values(RAW_ACCURACIES);
+
+const bgColors     = labels.map(l => l === BEST ? "rgba(124,58,237,0.80)" : "rgba(167,139,250,0.40)");
+const borderColors = labels.map(l => l === BEST ? "rgba(124,58,237,1)"    : "rgba(167,139,250,0.80)");
+
+const ctx = document.getElementById("accuracy-chart").getContext("2d");
+new Chart(ctx, {
+  type: "bar",
+  data: {
+    labels,
+    datasets: [{
+      label: "Accuracy (%)",
+      data: values,
+      backgroundColor: bgColors,
+      borderColor: borderColors,
+      borderWidth: 2,
+      borderRadius: 8,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y}%` } }
+    },
+    scales: {
+      y: {
+        beginAtZero: false,
+        min: Math.max(0, Math.min(...values) - 10),
+        max: 100,
+        ticks: { callback: v => v + "%", color: "#6b5fa6" },
+        grid: { color: "rgba(196,181,253,0.25)" }
+      },
+      x: {
+        ticks: { color: "#6b5fa6" },
+        grid: { display: false }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
