@@ -2,7 +2,7 @@
 routes/predict.py
 -----------------
 Blueprint for:
-  POST /predict   — classify a fruit and log the result
+  POST /predict   — classify a fruit using an ensemble model and log the result
   GET  /models    — return model performance data from DB
   GET  /logs      — return prediction history from DB
 """
@@ -15,13 +15,13 @@ from flask import Blueprint, request, jsonify, current_app
 
 predict_bp = Blueprint("predict", __name__)
 
-# Mapping of display name → pkl slug
+# Ensemble model display name → pkl slug
 MODEL_SLUGS = {
-    "KNN":                 "knn",
-    "Decision Tree":       "decision_tree",
-    "Naive Bayes":         "naive_bayes",
-    "Logistic Regression": "logistic_regression",
-    "Random Forest":       "random_forest",
+    "Random Forest":      "random_forest",
+    "AdaBoost":           "adaboost",
+    "Gradient Boosting":  "gradient_boosting",
+    "Voting Classifier":  "voting_classifier",
+    "Bagging Classifier": "bagging_classifier",
 }
 
 _loaded_models: dict = {}
@@ -30,7 +30,7 @@ _loaded_models: dict = {}
 def get_model(name: str):
     """Lazy-load a model from disk and cache it in memory."""
     if name not in _loaded_models:
-        slug      = MODEL_SLUGS[name]
+        slug       = MODEL_SLUGS[name]
         models_dir = current_app.config["MODELS_DIR"]
         path       = os.path.join(models_dir, f"{slug}.pkl")
         if not os.path.exists(path):
@@ -55,7 +55,6 @@ def predict():
         if not data:
             return jsonify({"error": "No JSON payload provided."}), 400
 
-        # Field validation
         for field in ("weight", "size", "sweetness"):
             if field not in data or str(data[field]).strip() == "":
                 return jsonify({"error": f"Missing required field: '{field}'"}), 400
@@ -64,7 +63,6 @@ def predict():
         size      = float(data["size"])
         sweetness = float(data["sweetness"])
 
-        # Range validation
         if not (0 < weight < 5000):
             return jsonify({"error": "Weight must be between 0 and 5000 grams."}), 400
         if not (0 < size < 100):
@@ -72,7 +70,7 @@ def predict():
         if not (0 <= sweetness <= 10):
             return jsonify({"error": "Sweetness must be between 0 and 10."}), 400
 
-        algo = data.get("algorithm", "KNN")
+        algo = data.get("algorithm", "Random Forest")
         if algo not in MODEL_SLUGS:
             return jsonify({"error": f"Unknown algorithm '{algo}'. Choose from: {list(MODEL_SLUGS)}"}), 400
 
@@ -85,7 +83,6 @@ def predict():
             prob = float(np.max(model.predict_proba(features))) * 100
             confidence_str = f"{prob:.2f}%"
 
-        # ── Log to database ───────────────────────────────────────────────────
         log_entry = PredictionLog(
             weight=weight, size=size, sweetness=sweetness,
             prediction=str(pred), model_used=algo,
@@ -110,7 +107,7 @@ def predict():
 
 @predict_bp.route("/models", methods=["GET"])
 def models_api():
-    """GET /models — returns model performance data from DB."""
+    """GET /models — returns ensemble model performance data from DB."""
     from db.models import ModelPerformance
     rows = ModelPerformance.query.order_by(ModelPerformance.accuracy.desc()).all()
     return jsonify([r.to_dict() for r in rows])

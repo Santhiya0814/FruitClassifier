@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fruit Classifier ML</title>
-  <meta name="description" content="AI-powered fruit classification using multiple machine learning algorithms — KNN, Decision Tree, Naive Bayes, and Logistic Regression." />
+  <meta name="description" content="AI-powered fruit classification using Ensemble Learning — Random Forest, AdaBoost, Gradient Boosting, Voting Classifier, and Bagging Classifier." />
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -46,11 +46,11 @@
       <span class="gradient-text">with Machine Learning</span>
     </h1>
     <p class="hero-subtitle">
-      Classify fruits in real-time using 5 different ML algorithms.<br/>
-      Compare accuracy, confidence scores, and model performance.
+      Classify fruits in real-time using 5 Ensemble Learning algorithms.<br/>
+      Compare accuracy, cross-validation scores, and model performance.
     </p>
     <div class="hero-stats d-flex justify-content-center gap-4 mt-4 flex-wrap">
-      <div class="stat-chip"><i class="bi bi-cpu me-1"></i>5 Algorithms</div>
+      <div class="stat-chip"><i class="bi bi-diagram-3 me-1"></i>5 Ensemble Models</div>
       <div class="stat-chip"><i class="bi bi-database me-1"></i>5 Fruit Classes</div>
       <div class="stat-chip"><i class="bi bi-lightning me-1"></i>Real-Time API</div>
     </div>
@@ -67,7 +67,7 @@
         <div class="glass-card h-100">
           <div class="card-header-custom">
             <h2 class="card-title"><i class="bi bi-sliders me-2 text-primary"></i>Input Features</h2>
-            <p class="card-subtitle">Adjust the fruit properties below to get a prediction</p>
+            <p class="card-subtitle">Select an ensemble model and adjust fruit properties</p>
           </div>
 
           <form id="predict-form" novalidate>
@@ -166,7 +166,7 @@
             <h2 class="card-title">
               <i class="bi bi-bar-chart-fill me-2" style="color:var(--primary)"></i>Model Accuracy Comparison
             </h2>
-            <p class="card-subtitle">Test-set accuracy for all 4 algorithms</p>
+            <p class="card-subtitle">Test-set accuracy for all 5 ensemble models</p>
           </div>
 
           <div class="chart-wrapper">

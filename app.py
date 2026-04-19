@@ -63,13 +63,19 @@ def _seed_model_performance(app: Flask):
     with open(stats_path) as f:
         stats = json.load(f)
 
+    cv_scores = stats.get("cv_scores", {})
     for name, acc in stats.get("accuracies", {}).items():
         row = ModelPerformance.query.filter_by(model_name=name).first()
         if row:
             row.accuracy     = acc
+            row.cv_score     = cv_scores.get(name)
             row.last_trained = datetime.utcnow()
         else:
-            db.session.add(ModelPerformance(model_name=name, accuracy=acc))
+            db.session.add(ModelPerformance(
+                model_name=name,
+                accuracy=acc,
+                cv_score=cv_scores.get(name),
+            ))
     db.session.commit()
 
 

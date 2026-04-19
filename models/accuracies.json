@@ -1,10 +1,17 @@
 {
   "accuracies": {
-    "KNN": 100.0,
-    "Decision Tree": 100.0,
-    "Naive Bayes": 100.0,
-    "Logistic Regression": 92.31,
-    "Random Forest": 100.0
+    "Random Forest": 100.0,
+    "AdaBoost": 80.0,
+    "Gradient Boosting": 100.0,
+    "Voting Classifier": 100.0,
+    "Bagging Classifier": 100.0
   },
-  "best_model": "KNN"
+  "cv_scores": {
+    "Random Forest": 100.0,
+    "AdaBoost": 100.0,
+    "Gradient Boosting": 100.0,
+    "Voting Classifier": 100.0,
+    "Bagging Classifier": 100.0
+  },
+  "best_model": "Random Forest"
 }

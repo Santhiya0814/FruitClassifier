@@ -2,7 +2,7 @@
 db/models.py
 ------------
 SQLAlchemy database models for:
-  - ModelPerformance  : tracks accuracy of each trained ML model
+  - ModelPerformance  : tracks accuracy of each trained ensemble model
   - PredictionLog     : logs every prediction made by the /predict API
 """
 
@@ -18,6 +18,7 @@ class ModelPerformance(db.Model):
     id           = db.Column(db.Integer, primary_key=True)
     model_name   = db.Column(db.String(100), nullable=False, unique=True)
     accuracy     = db.Column(db.Float, nullable=False)
+    cv_score     = db.Column(db.Float, nullable=True)
     last_trained = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def to_dict(self):
@@ -25,6 +26,7 @@ class ModelPerformance(db.Model):
             "id":           self.id,
             "model_name":   self.model_name,
             "accuracy":     round(self.accuracy, 2),
+            "cv_score":     round(self.cv_score, 2) if self.cv_score else None,
             "last_trained": self.last_trained.strftime("%Y-%m-%d %H:%M:%S"),
         }
 

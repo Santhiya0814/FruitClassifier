@@ -42,11 +42,11 @@ def post_predict(client, payload):
         content_type="application/json",
     )
 
-VALID = {"weight": 160, "size": 7.5, "sweetness": 7, "algorithm": "KNN"}
+VALID = {"weight": 160, "size": 7.5, "sweetness": 7, "algorithm": "Random Forest"}
 
 ALL_ALGOS = [
-    "KNN", "Decision Tree", "Naive Bayes",
-    "Logistic Regression", "Random Forest"
+    "Random Forest", "AdaBoost", "Gradient Boosting",
+    "Voting Classifier", "Bagging Classifier"
 ]
 
 
